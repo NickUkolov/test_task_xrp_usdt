@@ -72,7 +72,7 @@ def find_hour_diff_in_price(db_transaction):
     ])
     max_and_min = [el for el in transaction][0]
     if max_and_min['min_price'] <= (max_and_min['max_price'] * 0.99):
-        print('tsena upala na 1%')
+        print('Цена упала на 1%')
 
 
 def main(binance_url, mongo_url):
@@ -88,13 +88,15 @@ def main(binance_url, mongo_url):
     """
     db = database(mongo_url)
     while True:
-        response = get_and_write_in_db_binance_data(url=binance_url, db_transaction=db)
+        response = get_and_write_in_db_binance_data(
+            url=binance_url,
+            db_transaction=db
+        )
         clear_data_to_hour_span(db_transaction=db)
         find_hour_diff_in_price(db_transaction=db)
-        print(database(uri).estimated_document_count())
         if response.headers.get('Retry-After'):
             time.sleep(int(response.headers.get('Retry-After')))
-            print('mnogo zaprosov')
+            print('Слишком много запросов, угроза бана')
         if response.status_code == (429 | 418):
             time.sleep(60)
 
